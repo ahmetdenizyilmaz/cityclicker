@@ -1,0 +1,287 @@
+[
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	name: Wood
+	info: Resource for ctafting other items
+	stats: [
+		{
+			name: Power
+		}
+		{
+			name: Defence
+		}
+		{
+			stat: 10
+			name: Time
+		}
+	]
+	ingredients: [
+		{}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 1
+	itemtype: 1
+	name: Club
+	info: Basic and cheap club
+	stats: [
+		{
+			stat: 1
+			name: Power
+		}
+		{
+			name: Defence
+		}
+		{
+			stat: 10
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 1
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 2
+	itemtype: 2
+	name: Targe
+	info: Cheap shield
+	stats: [
+		{
+			name: Power
+		}
+		{
+			stat: 1
+			name: Defence
+		}
+		{
+			stat: 8
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 2
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 3
+	itemtype: 3
+	name: Leather vest
+	info: Old fashion vest
+	stats: [
+		{
+			name: Power
+		}
+		{
+			stat: 2
+			name: Defence
+		}
+		{
+			stat: 16
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 3
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 4
+	itemtype: 4
+	name: Hard Hat
+	info: Basic helm
+	stats: [
+		{
+			name: Power
+		}
+		{
+			stat: 1
+			name: Defence
+		}
+		{
+			stat: 12
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 1
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 5
+	itemtype: 5
+	name: Gloves
+	info: Cheap gloves
+	stats: [
+		{
+			stat: 1
+			name: Power
+		}
+		{
+			stat: 1
+			name: Defence
+		}
+		{
+			stat: 12
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 4
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 6
+	itemtype: 6
+	name: Sandals
+	info: Cheap Sandals
+	stats: [
+		{
+			stat: 1
+			name: Power
+		}
+		{
+			stat: 1
+			name: Defence
+		}
+		{
+			stat: 18
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 3
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 7
+	itemtype: 7
+	name: Healing Scroll
+	info: Scroll
+	stats: [
+		{
+			name: Power
+		}
+		{
+			stat: 5
+			name: Defence
+		}
+		{
+			stat: 32
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 8
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 11
+	itemtype: 1
+	name: Spiked Club
+	info: Basic and cheap club with spikes
+	stats: [
+		{
+			stat: 4
+			name: Power
+		}
+		{
+			name: Defence
+		}
+		{
+			stat: 16
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 4
+		}
+		{
+			itemid: 1
+			number: 1
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 12
+	itemtype: 2
+	name: Buckler
+	info: Cheap shield
+	stats: [
+		{
+			stat: 1
+			name: Power
+		}
+		{
+			stat: 4
+			name: Defence
+		}
+		{
+			stat: 20
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 6
+		}
+		{
+			itemid: 2
+			number: 1
+		}
+	]
+}
+{
+	class: com.ady.cityclicker.GameHelpers.ItemType
+	id: 13
+	itemtype: 3
+	name: Hide Armor
+	info: Old fashion armor
+	stats: [
+		{
+			name: Power
+		}
+		{
+			stat: 5
+			name: Defence
+		}
+		{
+			stat: 24
+			name: Time
+		}
+	]
+	ingredients: [
+		{
+			number: 5
+		}
+		{
+			itemid: 3
+			number: 1
+		}
+	]
+}
+]

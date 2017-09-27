@@ -98,22 +98,30 @@ public class Blueprint extends Content {
 
     @Override
     public void touchPoint(float xx, float yy) {
-        System.out.println("local point = " + (xx - parentalposition.x) + "/" + (yy - parentalposition.y));
+     //   System.out.println("local point = " + (xx - parentalposition.x) + "/" + (yy - parentalposition.y));
 
             if (started) {
-                done += Math.max((1f - done) / 4, 0.2f);
+                System.out.println(item.getTime()+"asd"                );
+                done += Math.max(120 / item.getTime(), 0.001f);
             } else {
                 started = true;
             }
+        System.out.println("done:" + done);
 
-
-
-        if (workercount < maxworker) {
-            workercount++;
-            gameresource.worker--;
-            statcoef[2] = 1f / (1f + workercount);
-        }
-
+if(plusicon.contains(xx,yy)) {
+    if (workercount < maxworker) {
+        workercount++;
+        gameresource.worker--;
+        statcoef[2] = 1f / (1f + workercount);
+    }
+}else if(minusicon.contains(xx,yy))
+{
+    if (workercount > 0) {
+        workercount--;
+        gameresource.worker++;
+        statcoef[2] = 1f / (1f + workercount);
+    }
+}
 
     }
 
@@ -121,11 +129,12 @@ public class Blueprint extends Content {
     public void act() {
         float drawpositionx = parentalposition.cpy().add(position).x;
         float drawpositiony = parentalposition.cpy().add(position).y;
-        if (started || workercount > 0) {
+        if ( workercount > 0) {
             done += 1f / (item.getTime() * statcoef[2]);
         }
         if (done >= 1f) {
             done -= 1f;
+            gameresource.gainXP((int) (item.getTime()/120));
             //new item
         }
 
@@ -144,7 +153,7 @@ public class Blueprint extends Content {
         float drawpositiony = parentalposition.cpy().add(position).y;
         batch.begin();
         innerframe.draw(batch, drawpositionx + 8, drawpositiony + height / 8, height * 3 / 4, height * 3 / 4);
-        System.out.println("done:" + done);
+      //  System.out.println("done:" + done);
         batch.setColor(Color.FOREST.cpy().mul(1f, 1f, 1f, 0.5f + done / 2));
         batch.draw(elapsedtimeback, drawpositionx + 8, drawpositiony + height / 8, 0f, 0f, (int) (done * height * 3 / 4), height * 3 / 4, 1f, 1f, 0f, 0, 0, (int) (done * 150), 152, false, false);
         batch.setColor(Color.WHITE);
@@ -152,7 +161,7 @@ public class Blueprint extends Content {
         font.getData().setScale(0.6f);
         string.setText(font, name);
 
-        font.draw(batch, name, drawpositionx + height + 20, drawpositiony + height + string.height / 2 - 25);
+        font.draw(batch, name+gameresource.level, drawpositionx + height + 20, drawpositiony + height + string.height / 2 - 25);
 
         // font1.setColor(Color.BLACK);
         font1.getData().setScale(0.6f);

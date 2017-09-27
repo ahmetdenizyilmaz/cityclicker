@@ -38,6 +38,7 @@ public class Blueprint extends Content {
     private Texture workericon;
     private int workercount = 0;
     private int maxworker = 6;
+    private boolean started = false;
 
     public Blueprint(float x, float y, int width, int height, ItemType item) {
         super(x, y, width, height);
@@ -98,9 +99,14 @@ public class Blueprint extends Content {
     @Override
     public void touchPoint(float xx, float yy) {
         System.out.println("local point = " + (xx - parentalposition.x) + "/" + (yy - parentalposition.y));
-        if (workercount > 0) {
-            done += Math.max((1f - done) / 4, 0.2f);
-        }
+
+            if (started) {
+                done += Math.max((1f - done) / 4, 0.2f);
+            } else {
+                started = true;
+            }
+
+
 
         if (workercount < maxworker) {
             workercount++;
@@ -115,7 +121,9 @@ public class Blueprint extends Content {
     public void act() {
         float drawpositionx = parentalposition.cpy().add(position).x;
         float drawpositiony = parentalposition.cpy().add(position).y;
-        done += 1f / (item.getTime() * statcoef[2]);
+        if (started || workercount > 0) {
+            done += 1f / (item.getTime() * statcoef[2]);
+        }
         if (done >= 1f) {
             done -= 1f;
             //new item
@@ -159,16 +167,12 @@ public class Blueprint extends Content {
             }
         }
 
-        //batch.draw(defence, drawpositionx + height + 120, drawpositiony + height - 75, 25, 25);
 
-        // font1.draw(batch, (int) item.getDefence() + "", drawpositionx + height + 150, drawpositiony + height - 55);
-
-        //   font1.setColor(Color.WHITE);
         float iconheight = icon.getHeight();
         float iconwidth = icon.getWidth();
         float scale = scaleTexture(icon, height / 2);
 
-        // System.out.println(item.getItemid() + "///" + scale);
+
         batch.draw(icon, drawpositionx + 8 + 3 * height / 8 - scale * iconwidth / 2, drawpositiony + height / 2 - scale * iconheight / 2, scale * iconwidth, scale * iconheight);
         font1.getData().setScale(0.6f);
         if (item.getItemid() % 10 != 0) {
@@ -184,11 +188,11 @@ public class Blueprint extends Content {
                 float widthscale = scaleicon * temptexture.getWidth();
 
                 string.setText(font1, number + "");
-                //font1.setColor(Color.BLACK);
+
 
                 batch.draw(neededitem.getTexture(), drawpositionx + 8 + height + i * 40 + 15 - widthscale / 2, drawpositiony + 33, widthscale, heightscale);
                 font1.draw(batch, number + "", drawpositionx + height + 27 - string.width / 2 + i * 40, drawpositiony + 28);
-                //  font1.setColor(Color.WHITE);
+
             }
         }
 

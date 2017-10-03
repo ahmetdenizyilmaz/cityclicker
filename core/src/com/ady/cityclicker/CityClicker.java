@@ -95,7 +95,7 @@ public class CityClicker extends Game implements InputProcessor {
 
     public void render() {
 
-        Gdx.gl.glClearColor(0.5f, 0.3f, 0.2f, 1);
+        Gdx.gl.glClearColor(0.9f, 0.3f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
 

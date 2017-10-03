@@ -50,11 +50,12 @@ public class Table {
     private int totallength = 0;
     private Vector2 draglastpoint = new Vector2(0, 0);
     private Vector2 dragstartpoint = new Vector2(0, 0);
-    private float slide = 1;
+    private float slide = 1.2f;
     private float slideamount = 0;
     private boolean istouched = false;
     private boolean justtouch = false;
     private GameResourceController gameresources;
+    private float scrollchangebank=0;
 
     public Table() {
         contents = new OrderedMap<Content, Vector2>();
@@ -134,16 +135,19 @@ public class Table {
 
             if (scrolllimit > 0) {
                 if (currentscroll > scrolllimit) {
-                    currentscroll -= Math.max((currentscroll - scrolllimit) / 4f, 0.5f);
+                    currentscroll -= (currentscroll - scrolllimit) / 5f;
+                }
+                else if(scrolllimit-currentscroll<3) {
+                    currentscroll=scrolllimit;
                 }
             } else {
-                currentscroll -= Math.max((currentscroll) / 4f, 0.5f);
+                currentscroll -= currentscroll / 5f;
             }
             if (currentscroll < 0) {
-                currentscroll += Math.max((-currentscroll) / 4f, 0.5f);
-                System.out.println("uyarı");
+                currentscroll += -currentscroll / 5f;
+                //   System.out.println("uyarı");
             }
-            slideamount /= 1.10f;
+            slideamount /= 1.06f;
         }
 
         Iterator<Content> iteratoract = contents.keys();
@@ -156,6 +160,7 @@ public class Table {
     public void addContent(Content content) {
 
         //  System.out.println("lp" + lastposition);
+        content.setOwner(this);
         content.setGameResource(gameresources);
         if (scrollvertical) {
             lastposition.sub(0, content.height + verticalgap);
@@ -238,8 +243,33 @@ public class Table {
         for (int i = 0; i < 7; i++) {
             if (icons[i].contains(xx, yy)) {
                 icons[i].toggleSelected();
+                System.out.println("selected icon"+i);
+               //Icon.trueToggle=null;
                 addSome();
             }
+        }
+    }
+
+
+    public void filterTree(Content itemtotree) {
+        contentsshow.clear();
+        currentscroll = 0;
+        totallength = 0;
+        if (scrollvertical) {
+            lastposition.set(0, height + verticalgap);
+            totallength -= verticalgap;
+        } else {
+            totallength -= horizantalgap;
+        }
+        Content itemtosearch=itemtotree;
+        //ObjectMap.Keys<Content> itemiterator = contents.keys();
+        Array<Content> contentstoput=new Array<Content>();
+        itemtotree.allRequired(contentstoput);
+        System.out.println("elemansayısı"+contentstoput.size);
+        Iterator<Content> iteratortoput= contentstoput.iterator();
+        while(iteratortoput.hasNext())
+        {
+            filterContent(iteratortoput.next());
         }
     }
 
@@ -274,23 +304,29 @@ public class Table {
         }
     }
 
+    public void addRequired() {
+
+    }
+
     public void touchDragged(float xx, float yy) {
         if (clipBounds.contains(xx, yy) && istouched) {
             if (scrollvertical) {
                 scrollchange = yy - draglastpoint.y;
-                currentscroll += scrollchange;
-                draglastpoint.set(xx, yy);
+
             } else {
                 scrollchange = draglastpoint.x - xx;
-                currentscroll += scrollchange;
-                draglastpoint.set(xx, yy);
             }
+            scrollchangebank+=scrollchange;
+            currentscroll += scrollchangebank/5f;
+            scrollchangebank-=scrollchangebank/5f;
+            draglastpoint.set(xx, yy);
             justtouch = dragstartpoint.dst2(draglastpoint) < 36;
 
             slideamount = scrollchange;
+
         } else {
             istouched = false;
-
+        scrollchangebank=0f;
 
         }
 
@@ -301,15 +337,20 @@ public class Table {
 
         if (justtouch && clipBounds.contains(xx, yy)) {
             // System.out.println("tıklama123");
-            Iterator<Content> iteratortouch = contents.keys();
-            while (iteratortouch.hasNext()) {
+            Iterator<Content> iteratortouch = contentsshow.keys();
+            boolean touched = false;
+
+            while (iteratortouch.hasNext() && !touched) {
                 Content temp = iteratortouch.next();
+                if(temp.getGlobalPosition().y<-100&& temp.getGlobalPosition().y>800 )
+                    continue;
                 int height = temp.height;
                 int width = temp.width;
                 Vector2 temppos = temp.getGlobalPosition();
                 if (xx >= temppos.x && xx <= temppos.x + width && yy >= temppos.y && yy <= temppos.y + height) {
-                    System.out.println("tıklama" + temp.name);
+                    // System.out.println("tıklama" + temp.name);
                     temp.touchPoint(xx, yy);
+                    touched = true;//dokunduğu anda liste değişme ihtimalinden dolayı çık
                 }
 
 
@@ -317,6 +358,7 @@ public class Table {
         }
         // System.out.println(slideamount + "");
         istouched = false;
+        scrollchangebank=0;
     }
 
 
@@ -337,11 +379,11 @@ public class Table {
             }
             npimageicon.draw(batch, position.x + i * 65, position.y - 70, 60, 60);
             batch.setColor(Color.WHITE);
-            float scale = scaleTexture(icons[i].icontexture, 40);
-            float iconwidth = scale * icons[i].icontexture.getWidth();
-            float iconheight = scale * icons[i].icontexture.getHeight();
+            float scale = scaleTexture(icons[i].currenticontexture, 40);
+            float iconwidth = scale * icons[i].currenticontexture.getWidth();
+            float iconheight = scale * icons[i].currenticontexture.getHeight();
 
-            batch.draw(icons[i].icontexture, icons[i].getPosition().x + 5 + (40 - iconwidth) / 2, icons[i].getPosition().y + 5 + (40 - iconheight) / 2, iconwidth, iconheight);
+            batch.draw(icons[i].currenticontexture, icons[i].getPosition().x + 5 + (40 - iconwidth) / 2, icons[i].getPosition().y + 5 + (40 - iconheight) / 2, iconwidth, iconheight);
 
         }
 
@@ -367,10 +409,11 @@ public class Table {
             ScissorStack.pushScissors(scissors);
             if (scrollvertical) {
                 temp.setParentalPosition(contentsshow.get(temp).cpy().add(0, currentscroll).add(position));
-                temp.drawself(batch);
+             if(temp.getGlobalPosition().y>-100&& temp.getGlobalPosition().y<800 )
+             { temp.drawself(batch);}
             } else {
 
-                temp.drawself(batch);
+              //  temp.drawself(batch);
             }
             //  System.out.println(temp.getGlobalPosition()+"");
             batch.flush();
@@ -391,7 +434,7 @@ public class Table {
         Iterator<Content> iteratorresume = contents.keys();
         while (iteratorresume.hasNext()) {
             iteratorresume.next().resume();
-            System.out.println("123123");
+            //   System.out.println("123123");
         }
     }
 }

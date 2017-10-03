@@ -1,5 +1,7 @@
 package com.ady.cityclicker.GameHelpers;
 
+import com.ady.cityclicker.GameObjects.Chest;
+import com.ady.cityclicker.GameObjects.Content;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,6 +23,8 @@ public class ItemType {
     private String name;
     private String info = "info0001";
     private transient Texture itemtexture;
+    private transient Content owner;
+    public transient Chest chest = new Chest();
     public Stat[] stats = new Stat[statcount];
     private Array<IC> ingredients = new Array<IC>();
 
@@ -91,6 +95,26 @@ public class ItemType {
         }
     }
 
+    public boolean isThereEnoughMaterial() {
+        boolean temp = true;
+        for (IC i : ingredients) {
+            if (!i.getItem().chest.isThere(i.getNumber())) {
+                temp = false;
+            }
+        }
+        System.out.println(name + "all yeterli   " + temp);
+        return temp;
+    }
+
+    public boolean isResource() {
+        return ingredients.size == 0;
+    }
+
+    public void takeMaterials() {
+        for (IC i : ingredients) {
+            i.getItem().chest.take(i.getNumber());
+        }
+    }
 
     public void dispose() {
         itemtexture.dispose();
@@ -111,6 +135,21 @@ public class ItemType {
     }
 
     public float getTime() {
-        return stats[2].getStat()*60;
+        return stats[2].getStat() * 60;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ItemType)) return false;
+        ItemType itemobject = (ItemType) other;
+        return itemobject.getItemid() == id;
+    }
+
+    public void setOwner(Content owner) {
+        this.owner=owner;
+    }
+
+    public Content getOwner() {
+        return owner;
     }
 }

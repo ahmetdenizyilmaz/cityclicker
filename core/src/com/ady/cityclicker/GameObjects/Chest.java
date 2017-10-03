@@ -9,17 +9,29 @@ import com.badlogic.gdx.utils.Array;
 
 public class Chest {
 
-    private Array<Item> chest = new Array<Item>();
+    private long itemnumber=0;
 
     public Chest() {
     }
 
-    public void add(Item item) {
-        chest.add(item);
+    public void add() {
+        itemnumber++;
     }
 
-    public Array<Item> getChest() {
-        return chest;
+    public void add(long number) {
+        itemnumber += number;
+    }
+
+    public void take(long number) {
+            itemnumber -= number;
+    }
+    public long getCount()
+    {
+        return itemnumber;
+    }
+    public boolean isThere(long number)
+    {
+        return itemnumber>=number;
     }
 
 }

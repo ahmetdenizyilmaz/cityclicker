@@ -6,6 +6,7 @@ import com.ady.cityclicker.GameHelpers.InfoBox;
 import com.ady.cityclicker.GameHelpers.ItemType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -37,8 +38,14 @@ public class Blueprint extends Content {
     private Icon plusicon;
     private Texture workericon;
     private int workercount = 0;
+    private int sellercount = 0;
     private int maxworker = 6;
     private boolean started = false;
+    private Icon plusicon2;
+    private Icon minusicon2;
+    private Texture sellicon;
+    private Texture chesticon;
+    public Icon toggleicon;
 
     public Blueprint(float x, float y, int width, int height, ItemType item) {
         super(x, y, width, height);
@@ -52,6 +59,7 @@ public class Blueprint extends Content {
 
     private void init(ItemType item) {
         this.item = item;
+        item.setOwner(this);
         for (int i = 0; i < item.getIngredients().size; i++) {
             infobox[i] = new InfoBox(0, 0, 30f, 30f);
         }
@@ -74,17 +82,22 @@ public class Blueprint extends Content {
         font = new BitmapFont(Gdx.files.internal("font0.fnt"), new TextureRegion(texture), false);
         font.setUseIntegerPositions(false);
 
+        toggleicon = new Icon(0, 0, 36, Gdx.files.internal("treeview.png"),Gdx.files.internal("treeviewgray.png"));
         texture = new Texture(Gdx.files.internal("font1.png"), true);
         texture.setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
         font1 = new BitmapFont(Gdx.files.internal("font1.fnt"), new TextureRegion(texture), false);
         elapsedtimeback = new Texture(Gdx.files.internal("elapsedtimeback.png"));
         workericon = new Texture(Gdx.files.internal("worker.png"));
         workericon.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        chesticon = new Texture(Gdx.files.internal("chest.png"));
+        chesticon.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         elapsedtimeback.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-
+        sellicon = new Texture(Gdx.files.internal("sell.png"));
+        sellicon.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         plusicon = new Icon(0, 0, 36, Gdx.files.internal("plus.png"));
         minusicon = new Icon(0, 0, 36, Gdx.files.internal("minus.png"));
-
+        plusicon2 = new Icon(0, 0, 36, Gdx.files.internal("plus.png"));
+        minusicon2 = new Icon(0, 0, 36, Gdx.files.internal("minus.png"));
         // font1.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         font1.setUseIntegerPositions(false);
         innerframe = new NinePatch(new Texture(Gdx.files.internal("ninepatchcontent.png")), 20, 20, 20, 34);
@@ -98,43 +111,92 @@ public class Blueprint extends Content {
 
     @Override
     public void touchPoint(float xx, float yy) {
-     //   System.out.println("local point = " + (xx - parentalposition.x) + "/" + (yy - parentalposition.y));
+        //   System.out.println("local point = " + (xx - parentalposition.x) + "/" + (yy - parentalposition.y));
 
+
+        //System.out.println("done:" + done);
+
+        if (plusicon.contains(xx, yy)) {
+            if (workercount < maxworker) {
+                workercount++;
+                gameresource.worker--;
+                statcoef[2] = 1f / (1f + workercount);
+            }
+        } else if (minusicon.contains(xx, yy)) {
+            if (workercount > 0) {
+                workercount--;
+                gameresource.worker++;
+                statcoef[2] = 1f / (1f + workercount);
+            }
+        } else if (plusicon2.contains(xx, yy)) {
+            if (sellercount < workercount || sellercount == 0) {
+                sellercount++;
+                gameresource.worker--;
+            }
+        } else if (minusicon2.contains(xx, yy)) {
+            if (sellercount > 0) {
+                sellercount--;
+                gameresource.worker++;
+            }
+        }else if(toggleicon.contains(xx,yy))
+        {
+            toggleicon.toggleSelected();
+            if(toggleicon.getSelected())
+            {
+                owner.filterTree(this);
+              //  toggleicon.toggleSelected();
+            }
+            else
+            {
+                owner.addSome();
+            }
+
+        }        else {
+            //TIKLAMA DONE
             if (started) {
-                System.out.println(item.getTime()+"asd"                );
+                //  System.out.println(item.getTime() + "asd");
                 done += Math.max(120 / item.getTime(), 0.001f);
             } else {
-                started = true;
+                if (item.isThereEnoughMaterial()) {
+                    started = true;
+                    done += Math.max(120 / item.getTime(), 0.001f);
+                    item.takeMaterials();
+                }
             }
-        System.out.println("done:" + done);
+        }
 
-if(plusicon.contains(xx,yy)) {
-    if (workercount < maxworker) {
-        workercount++;
-        gameresource.worker--;
-        statcoef[2] = 1f / (1f + workercount);
-    }
-}else if(minusicon.contains(xx,yy))
-{
-    if (workercount > 0) {
-        workercount--;
-        gameresource.worker++;
-        statcoef[2] = 1f / (1f + workercount);
-    }
-}
 
     }
+
 
     @Override
     public void act() {
         float drawpositionx = parentalposition.cpy().add(position).x;
         float drawpositiony = parentalposition.cpy().add(position).y;
-        if ( workercount > 0) {
-            done += 1f / (item.getTime() * statcoef[2]);
+        if (workercount > 0) {
+            if (started) {
+                done += 1f / (item.getTime() * statcoef[2]);
+            } else {
+                if (item.isThereEnoughMaterial()) {
+                    started = true;
+                    item.takeMaterials();
+                } else {
+                    started = false;
+                }
+            }
         }
         if (done >= 1f) {
             done -= 1f;
-            gameresource.gainXP((int) (item.getTime()/120));
+
+            if (item.isThereEnoughMaterial()) {
+                started = true;
+                item.takeMaterials();
+            } else {
+                started = false;
+            }
+
+            item.chest.add();
+            gameresource.gainXP((int) (item.getTime() / 120));
             //new item
         }
 
@@ -151,9 +213,16 @@ if(plusicon.contains(xx,yy)) {
         super.drawself(batch);
         float drawpositionx = parentalposition.cpy().add(position).x;
         float drawpositiony = parentalposition.cpy().add(position).y;
+
         batch.begin();
+
+
         innerframe.draw(batch, drawpositionx + 8, drawpositiony + height / 8, height * 3 / 4, height * 3 / 4);
-      //  System.out.println("done:" + done);
+
+
+
+
+        //  System.out.println("done:" + done);
         batch.setColor(Color.FOREST.cpy().mul(1f, 1f, 1f, 0.5f + done / 2));
         batch.draw(elapsedtimeback, drawpositionx + 8, drawpositiony + height / 8, 0f, 0f, (int) (done * height * 3 / 4), height * 3 / 4, 1f, 1f, 0f, 0, 0, (int) (done * 150), 152, false, false);
         batch.setColor(Color.WHITE);
@@ -161,7 +230,7 @@ if(plusicon.contains(xx,yy)) {
         font.getData().setScale(0.6f);
         string.setText(font, name);
 
-        font.draw(batch, name+gameresource.level, drawpositionx + height + 20, drawpositiony + height + string.height / 2 - 25);
+        font.draw(batch, name + Gdx.graphics.getFramesPerSecond(), drawpositionx + height + 20, drawpositiony + height + string.height / 2 - 25);
 
         // font1.setColor(Color.BLACK);
         font1.getData().setScale(0.6f);
@@ -206,12 +275,27 @@ if(plusicon.contains(xx,yy)) {
         }
 
         font1.getData().setScale(0.6f);
-        plusicon.setPosition(drawpositionx + 460, drawpositiony + 80);
-        minusicon.setPosition(drawpositionx + 390, drawpositiony + 80);
-        batch.draw(workericon, drawpositionx + 429, drawpositiony + 120, 25, 25);
-        font1.draw(batch, workercount + "", drawpositionx + 439, drawpositiony + 104);
-        batch.draw(plusicon.icontexture, plusicon.getPosition().x, plusicon.getPosition().y, plusicon.getSize(), plusicon.getSize());
-        batch.draw(minusicon.icontexture, minusicon.getPosition().x, minusicon.getPosition().y, minusicon.getSize(), minusicon.getSize());
+        plusicon.setPosition(drawpositionx + 460, drawpositiony + 90);
+        minusicon.setPosition(drawpositionx + 390, drawpositiony + 90);
+        batch.draw(workericon, drawpositionx + 429, drawpositiony + 130, 25, 25);
+        font1.draw(batch, workercount + "", drawpositionx + 439, drawpositiony + 114);
+        batch.draw(plusicon.currenticontexture, plusicon.getPosition().x, plusicon.getPosition().y, plusicon.getSize(), plusicon.getSize());
+        batch.draw(minusicon.currenticontexture, minusicon.getPosition().x, minusicon.getPosition().y, minusicon.getSize(), minusicon.getSize());
+
+
+        plusicon2.setPosition(drawpositionx + 460, drawpositiony + 10);
+        minusicon2.setPosition(drawpositionx + 390, drawpositiony + 10);
+        batch.draw(sellicon, drawpositionx + 429, drawpositiony + 50, 25, 25);
+        font1.draw(batch, sellercount + "", drawpositionx + 439, drawpositiony + 34);
+        batch.draw(plusicon2.currenticontexture, plusicon2.getPosition().x, plusicon2.getPosition().y, plusicon2.getSize(), plusicon2.getSize());
+        batch.draw(minusicon2.currenticontexture, minusicon2.getPosition().x, minusicon2.getPosition().y, minusicon2.getSize(), minusicon2.getSize());
+
+
+        batch.draw(chesticon, drawpositionx + 12, drawpositiony + height - 50, 20, 20);
+        font1.draw(batch, item.chest.getCount() + "", drawpositionx + 12, drawpositiony + height - 50);
+
+        toggleicon.setPosition(drawpositionx + 460, drawpositiony + 160);
+        batch.draw(toggleicon.currenticontexture, toggleicon.getPosition().x, toggleicon.getPosition().y, toggleicon.getSize(), toggleicon.getSize());
         batch.end();
         font1.getData().setScale(1f);
     }
